@@ -1,35 +1,27 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
+import { User } from './users.model';
+import { RegisterUserInput } from './inputs/register-user.input';
+import { MessageOutput } from './responses/message-response.output';
+import { LoginResponse } from './responses/login-response.output';
+import { LoginUserInput } from './inputs/login-user.input';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Mutation(() => User)
-  createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.usersService.create(createUserInput);
+
+  @Mutation(() => MessageOutput)
+  async registerUser(@Args('input') input: RegisterUserInput): Promise<MessageOutput> {
+    const result = await this.usersService.registerUser(input);
+    return result;
   }
 
-  @Query(() => [User], { name: 'users' })
-  findAll() {
-    return this.usersService.findAll();
-  }
 
-  @Query(() => User, { name: 'user' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.usersService.findOne(id);
+  @Mutation(() => LoginResponse)
+  async loginUser(@Args('input') input: LoginUserInput): Promise<LoginResponse> {
+    const result = await this.usersService.loginUser(input);
+    return result;
   }
-
-  @Mutation(() => User)
-  updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.usersService.update(updateUserInput.id, updateUserInput);
-  }
-
-  @Mutation(() => User)
-  removeUser(@Args('id', { type: () => Int }) id: number) {
-    return this.usersService.remove(id);
-  }
+  
 }

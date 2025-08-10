@@ -22,7 +22,6 @@ export class User {
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
   email: string;
 
-  // Not exposed in GraphQL for security
   @Prop({ required: true })
   password: string;
 

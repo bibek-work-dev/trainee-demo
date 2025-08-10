@@ -5,13 +5,26 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventsModule } from './events/events.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { join } from 'path';
 
 @Module({
   imports: [
-        GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
+    ConfigModule.forRoot({
+      isGlobal: true, 
     }),
-     MongooseModule.forRoot('mongodb://localhost:27017/trainee-demo'),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'schema.gql')
+    }),
+     MongooseModule.forRootAsync({
+      imports: [ConfigModule],  // import ConfigModule here
+      inject: [ConfigService],  // inject ConfigService
+      useFactory: async (configService: ConfigService) => ({
+        
+        uri: configService.get<string>('DATABASE_URI'), 
+      }),
+    }),
     UsersModule,
     EventsModule],
   controllers: [],
